@@ -1,5 +1,6 @@
-const API_KEY = "75265db5";
-const BASE_URL = "http://www.omdbapi.com/";
+// Get your free API key from: https://www.themoviedb.org/settings/api
+const API_KEY = "Yde79c44241a0e1db09617217f8b8692a"; // Replace with your actual TMDB API key
+const BASE_URL = "https://api.themoviedb.org/3";
 
 export const getPopularMovies = async () => {
   // OMDB does not have a 'popular' endpoint, so we fetch a default movie list
