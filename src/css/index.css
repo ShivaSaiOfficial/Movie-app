@@ -19,7 +19,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
 }
 
@@ -39,13 +40,18 @@ body {
 
 a {
   font-weight: 550;
-  color:  #e50914;
+  background: linear-gradient(135deg, #ffffff, #ff7471, #f03636, #e50914);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-decoration: inherit;
   font-size: 1.7em;
-  
 }
 a:hover {
-  color:  #e50914;
+  background: #e50914;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 h1 {
@@ -55,17 +61,18 @@ h1 {
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 2px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s ease;
 }
 button:hover {
-  border-color:  #e50914;
+  border: 2px solid white;
+  color: white;
 }
 button:focus,
 button:focus-visible {
@@ -78,9 +85,29 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color:  #e50914;
+    background: linear-gradient(135deg, #f5f5f5, #ffcccb, #ff6b6b, #e50914);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   button {
     background-color: #f9f9f9;
   }
+}
+
+a.colour {
+  background: #e50914;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+a.colour:hover {
+  background: linear-gradient(135deg, #ff8a80, #ff5722, #d32f2f, #b71c1c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transform: scale(1.05);
 }

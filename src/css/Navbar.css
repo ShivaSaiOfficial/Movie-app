@@ -5,27 +5,39 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: "Quicksand", sans-serif;
+  font-weight: 500;
 }
 
 .navbar-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffffff, #ffcccb, #ff6b6b, #e50914);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .navbar-links {
   display: flex;
-  gap: 2rem;
+  gap: 2.5rem;
+  margin-left: 40%;
 }
 
 .nav-link {
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  font-size: 1.1rem;
+  color: #e50914;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #e50914;
+  color: #ffffff;
+  transform: scale(1.02);
+  font-size: 1.1rem;
 }
 
 @media (max-width: 768px) {
@@ -34,14 +46,20 @@
   }
 
   .navbar-brand {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff, #ffcccb, #ff6b6b, #e50914);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .navbar-links {
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .nav-link {
-    padding: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    font-size: 1rem;
   }
 }
