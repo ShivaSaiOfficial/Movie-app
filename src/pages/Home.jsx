@@ -12,12 +12,24 @@ function Home() {
   useEffect(() => {
     const loadPopularMovies = async () => {
       try {
+        console.log("🏠 Home: Starting to load popular movies...");
+        setError(null); // Clear any previous errors
+
         const popularMovies = await getPopularMovies();
-        setMovies(popularMovies);
+        console.log("🏠 Home: Received movies:", popularMovies?.length);
+
+        if (popularMovies && popularMovies.length > 0) {
+          setMovies(popularMovies);
+          console.log("✅ Movies set successfully");
+        } else {
+          console.warn("⚠️ No movies received");
+          setError("No movies found");
+        }
       } catch (err) {
-        console.log(err);
-        setError("Failed to load movies...");
+        console.error("💥 Home: Error loading movies:", err);
+        setError("Failed to load movies: " + err.message);
       } finally {
+        console.log("🏁 Home: Loading finished");
         setLoading(false);
       }
     };
