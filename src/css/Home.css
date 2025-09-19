@@ -1,12 +1,129 @@
 .home {
-  padding: 2rem 0;
+  padding: 0;
   width: 100%;
   box-sizing: border-box;
 }
 
+/* Hero Banner Section */
+.hero-banner {
+  position: relative;
+  height: 70vh;
+  min-height: 500px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.hero-video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.hero-video-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%),
+    url("https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80");
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+
+.hero-video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(34, 31, 31, 0.8) 0%,
+    rgba(34, 31, 31, 0.4) 50%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  max-width: 500px;
+  padding: 0 2rem;
+  color: #f5f5f1;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+  font-family: "Bebas Neue", "Arial Black", sans-serif;
+  letter-spacing: 2px;
+}
+
+.hero-description {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+  color: #f5f5f1;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.hero-btn {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.hero-btn-play {
+  background-color: #e50914;
+  color: #f5f5f1;
+}
+
+.hero-btn-play:hover {
+  background-color: #b8070f;
+  transform: scale(1.05);
+}
+
+.hero-btn-info {
+  background-color: rgba(86, 77, 77, 0.8);
+  color: #f5f5f1;
+  border: 2px solid #564d4d;
+}
+
+.hero-btn-info:hover {
+  background-color: #564d4d;
+  border-color: #f5f5f1;
+}
+
 .search-form {
   max-width: 600px;
-  margin: 0 auto 2rem;
+  margin: 2rem auto;
   display: flex;
   gap: 1rem;
   padding: 0 1rem;
@@ -45,11 +162,42 @@
 
 @media (max-width: 639px) {
   .home {
-    padding: 1rem 0;
+    padding: 0;
+  }
+
+  .hero-banner {
+    height: 60vh;
+    min-height: 400px;
+  }
+
+  .hero-content {
+    padding: 0 1rem;
+    max-width: 100%;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .hero-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    min-width: auto;
   }
 
   .search-form {
-    margin-bottom: 1rem;
+    margin: 1.5rem auto 1rem;
   }
 }
 
@@ -60,85 +208,4 @@
   padding: 1rem;
   width: 100%;
   box-sizing: border-box;
-}
-
-/* Featured Videos Section */
-.featured-videos-section {
-  margin: 2rem 0;
-  padding: 0 1rem;
-}
-
-.section-title {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  color: #e50914;
-  font-weight: 800;
-}
-
-.videos-carousel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.video-card {
-  background: #564d4d;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.video-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(229, 9, 20, 0.2);
-}
-
-.video-title {
-  color: #f5f5f1;
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.video-frame {
-  width: 100%;
-  height: 200px;
-  border-radius: 8px;
-  border: none;
-  background: #221f1f;
-}
-
-.video-type {
-  color: #e50914;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-align: center;
-  margin-top: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* Mobile Responsiveness for Videos */
-@media (max-width: 768px) {
-  .videos-carousel {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .video-frame {
-    height: 180px;
-  }
-
-  .section-title {
-    font-size: 1.6rem;
-  }
-
-  .video-card {
-    padding: 1rem;
-  }
 }

@@ -1,19 +1,13 @@
 import MovieCard from "../components/MovieCard";
 import { useState, useEffect } from "react";
-import {
-  searchMovies,
-  getPopularMovies,
-  getFeaturedMovieVideos,
-} from "../services/api";
+import { searchMovies, getPopularMovies } from "../services/api";
 import "../css/Home.css";
 
 function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [movies, setMovies] = useState([]);
-  const [featuredVideos, setFeaturedVideos] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [videosLoading, setVideosLoading] = useState(true);
 
   useEffect(() => {
     const loadPopularMovies = async () => {
@@ -40,21 +34,7 @@ function Home() {
       }
     };
 
-    const loadFeaturedVideos = async () => {
-      try {
-        console.log("🎬 Home: Loading featured videos...");
-        const videos = await getFeaturedMovieVideos();
-        console.log("🎬 Home: Received videos:", videos?.length);
-        setFeaturedVideos(videos);
-      } catch (err) {
-        console.error("💥 Home: Error loading videos:", err);
-      } finally {
-        setVideosLoading(false);
-      }
-    };
-
     loadPopularMovies();
-    loadFeaturedVideos();
   }, []);
 
   const handleSearch = async (e) => {
@@ -75,11 +55,44 @@ function Home() {
     }
   };
 
-  const getYouTubeUrl = (videoKey) =>
-    `https://www.youtube.com/embed/${videoKey}?autoplay=0&controls=1&rel=0`;
-
   return (
     <div className="home">
+      {/* Hero Banner Section */}
+      <div className="hero-banner">
+        <div className="hero-video-container">
+          <video
+            className="hero-video"
+            autoPlay
+            muted
+            loop
+            playsInline
+            onError={(e) => {
+              console.log("Video failed to load, using fallback background");
+              e.target.style.display = "none";
+            }}
+          >
+            <source src="/videos/Interstellar clip.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <div className="hero-video-fallback"></div>
+          <div className="hero-video-overlay"></div>
+        </div>
+
+        <div className="hero-content">
+          <h1 className="hero-title">Interstellar</h1>
+          <p className="hero-description">
+            A team of explorers travel through a wormhole in space in an attempt
+            to ensure humanity's survival. Experience this mind-bending journey
+            through space and time that will challenge everything you think you
+            know about our universe.
+          </p>
+          <div className="hero-buttons">
+            <button className="hero-btn hero-btn-play">▶ Watch Now</button>
+            <button className="hero-btn hero-btn-info">ℹ More Info</button>
+          </div>
+        </div>
+      </div>
+
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"
@@ -92,30 +105,6 @@ function Home() {
           Search
         </button>
       </form>
-
-      {/* Featured Videos Section */}
-      {!videosLoading && featuredVideos.length > 0 && (
-        <div className="featured-videos-section">
-          <h2 className="section-title">🎬 Featured Trailers</h2>
-          <div className="videos-carousel">
-            {featuredVideos.map((movieData) =>
-              movieData.videos.slice(0, 1).map((video) => (
-                <div key={video.key} className="video-card">
-                  <h3 className="video-title">{movieData.movieTitle}</h3>
-                  <iframe
-                    src={getYouTubeUrl(video.key)}
-                    title={`${movieData.movieTitle} - ${video.name}`}
-                    className="video-frame"
-                    frameBorder="0"
-                    allowFullScreen
-                  />
-                  <p className="video-type">{video.type}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
 
       {error && <div className="error-message">{error}</div>}
 

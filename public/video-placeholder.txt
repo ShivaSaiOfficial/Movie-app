@@ -1,0 +1,12 @@
+<!-- This is a placeholder for your hero video. 
+     Please add your actual video files:
+     - hero-video.mp4 (MP4 format for broad compatibility)
+     - hero-video.webm (WebM format for better compression)
+     
+     Place these files in the public folder of your project.
+     Recommended video specifications:
+     - Duration: 30-60 seconds
+     - Resolution: 1920x1080 or higher
+     - Format: MP4 (H.264) or WebM
+     - File size: Keep under 10MB for good performance
+-->
