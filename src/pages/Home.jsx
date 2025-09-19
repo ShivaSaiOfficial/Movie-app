@@ -57,21 +57,90 @@ function Home() {
 
   return (
     <div className="home">
+      <form onSubmit={handleSearch} className="search-form">
+        <input
+          type="text"
+          placeholder="Search for movies..."
+          className="search-input"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <button type="submit" className="search-button">
+          Search
+        </button>
+      </form>
+
       {/* Hero Banner Section */}
       <div className="hero-banner">
-        <div className="hero-video-container">
+        <div
+          className="hero-video-container"
+          onClick={() => {
+            const video = document.querySelector(".hero-video");
+            if (video && video.paused) {
+              video
+                .play()
+                .then(() => {
+                  console.log("✅ Video played after user interaction");
+                })
+                .catch((err) => {
+                  console.log("❌ Video play after click failed:", err);
+                });
+            }
+          }}
+        >
           <video
             className="hero-video"
             autoPlay
             muted
             loop
             playsInline
+            preload="auto"
+            onLoadStart={() => {
+              console.log("✅ Video loading started");
+            }}
+            onCanPlay={() => {
+              console.log("✅ Video can play");
+              // Ensure video is visible and force play
+              const video = document.querySelector(".hero-video");
+              if (video) {
+                video.style.display = "block";
+                video.style.opacity = "1";
+                // Force play with promise handling
+                video
+                  .play()
+                  .then(() => {
+                    console.log("✅ Video play() succeeded");
+                  })
+                  .catch((err) => {
+                    console.log("⚠️ Video autoplay blocked:", err);
+                  });
+              }
+            }}
+            onLoadedData={() => {
+              console.log("✅ Video data loaded");
+              // Try to play when data is loaded
+              const video = document.querySelector(".hero-video");
+              if (video) {
+                video.play().catch((err) => {
+                  console.log("⚠️ Video play from loadedData blocked:", err);
+                });
+              }
+            }}
+            onPlay={() => {
+              console.log("✅ Video is playing");
+              // Hide fallback when video plays
+              const fallback = document.querySelector(".hero-video-fallback");
+              if (fallback) fallback.style.display = "none";
+            }}
             onError={(e) => {
-              console.log("Video failed to load, using fallback background");
-              e.target.style.display = "none";
+              console.error("❌ Video failed to load:", e);
+              console.error("❌ Video error:", e.target.error);
+              // Show fallback on error
+              const fallback = document.querySelector(".hero-video-fallback");
+              if (fallback) fallback.style.display = "block";
             }}
           >
-            <source src="/videos/Interstellar clip.mp4" type="video/mp4" />
+            <source src="/videos/Interstellar_clip.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <div className="hero-video-fallback"></div>
@@ -92,19 +161,6 @@ function Home() {
           </div>
         </div>
       </div>
-
-      <form onSubmit={handleSearch} className="search-form">
-        <input
-          type="text"
-          placeholder="Search for movies..."
-          className="search-input"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <button type="submit" className="search-button">
-          Search
-        </button>
-      </form>
 
       {error && <div className="error-message">{error}</div>}
 
