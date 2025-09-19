@@ -10,12 +10,20 @@
 }
 
 .navbar-brand {
-  font-size: 1.8rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffffff, #ffcccb, #ff6b6b, #e50914);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.navbar-logo {
+  height: 50px;
+  width: auto;
+  transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.5));
 }
 
 .navbar-links {
@@ -45,13 +53,8 @@
     padding: 1rem;
   }
 
-  .navbar-brand {
-    font-size: 1.4rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #ffffff, #ffcccb, #ff6b6b, #e50914);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .navbar-logo {
+    height: 40px;
   }
 
   .navbar-links {

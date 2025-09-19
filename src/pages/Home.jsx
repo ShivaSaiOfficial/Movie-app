@@ -1,13 +1,19 @@
 import MovieCard from "../components/MovieCard";
 import { useState, useEffect } from "react";
-import { searchMovies, getPopularMovies } from "../services/api";
+import {
+  searchMovies,
+  getPopularMovies,
+  getFeaturedMovieVideos,
+} from "../services/api";
 import "../css/Home.css";
 
 function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [movies, setMovies] = useState([]);
+  const [featuredVideos, setFeaturedVideos] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [videosLoading, setVideosLoading] = useState(true);
 
   useEffect(() => {
     const loadPopularMovies = async () => {
@@ -34,7 +40,21 @@ function Home() {
       }
     };
 
+    const loadFeaturedVideos = async () => {
+      try {
+        console.log("🎬 Home: Loading featured videos...");
+        const videos = await getFeaturedMovieVideos();
+        console.log("🎬 Home: Received videos:", videos?.length);
+        setFeaturedVideos(videos);
+      } catch (err) {
+        console.error("💥 Home: Error loading videos:", err);
+      } finally {
+        setVideosLoading(false);
+      }
+    };
+
     loadPopularMovies();
+    loadFeaturedVideos();
   }, []);
 
   const handleSearch = async (e) => {
@@ -55,6 +75,9 @@ function Home() {
     }
   };
 
+  const getYouTubeUrl = (videoKey) =>
+    `https://www.youtube.com/embed/${videoKey}?autoplay=0&controls=1&rel=0`;
+
   return (
     <div className="home">
       <form onSubmit={handleSearch} className="search-form">
@@ -69,6 +92,30 @@ function Home() {
           Search
         </button>
       </form>
+
+      {/* Featured Videos Section */}
+      {!videosLoading && featuredVideos.length > 0 && (
+        <div className="featured-videos-section">
+          <h2 className="section-title">🎬 Featured Trailers</h2>
+          <div className="videos-carousel">
+            {featuredVideos.map((movieData) =>
+              movieData.videos.slice(0, 1).map((video) => (
+                <div key={video.key} className="video-card">
+                  <h3 className="video-title">{movieData.movieTitle}</h3>
+                  <iframe
+                    src={getYouTubeUrl(video.key)}
+                    title={`${movieData.movieTitle} - ${video.name}`}
+                    className="video-frame"
+                    frameBorder="0"
+                    allowFullScreen
+                  />
+                  <p className="video-type">{video.type}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
 
       {error && <div className="error-message">{error}</div>}
 

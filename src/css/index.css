@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #f5f5f1;
+  background-color: #221f1f;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,6 +29,7 @@ body {
   width: 100%;
   min-height: 100vh;
   position: relative;
+  background-color: #221f1f;
 }
 
 #root {
@@ -40,18 +41,12 @@ body {
 
 a {
   font-weight: 550;
-  background: linear-gradient(135deg, #ffffff, #ff7471, #f03636, #e50914);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #e50914;
   text-decoration: inherit;
   font-size: 1.7em;
 }
 a:hover {
-  background: #e50914;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #f5f5f1;
 }
 
 h1 {
@@ -66,13 +61,15 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #564d4d;
+  color: #f5f5f1;
   cursor: pointer;
   transition: all 0.25s ease;
 }
 button:hover {
-  border: 2px solid white;
-  color: white;
+  border: 2px solid #e50914;
+  background-color: #e50914;
+  color: #f5f5f1;
 }
 button:focus,
 button:focus-visible {
@@ -81,33 +78,24 @@ button:focus-visible {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: #221f1f;
+    background-color: #f5f5f1;
   }
   a:hover {
-    background: linear-gradient(135deg, #f5f5f5, #ffcccb, #ff6b6b, #e50914);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #e50914;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: #564d4d;
   }
 }
 
 a.colour {
-  background: #e50914;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #e50914;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 a.colour:hover {
-  background: linear-gradient(135deg, #ff8a80, #ff5722, #d32f2f, #b71c1c);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #f5f5f1;
   transform: scale(1.05);
 }

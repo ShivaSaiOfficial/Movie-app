@@ -1,4 +1,4 @@
-const API_KEY = "Yde79c44241a0e1db09617217f8b8692a";
+const API_KEY = "de79c44241a0e1db09617217f8b8692a";
 const BASE_URL = "https://api.themoviedb.org/3";
 
 // Mock data for when API is blocked
@@ -108,6 +108,13 @@ const mockMovies = [
     release_date: "1994-07-06",
     vote_average: 8.8,
   },
+  {
+    id: 17,
+    title: "Gran Turismo",
+    poster_path: "/51tqzRtKMMZEYUpSYkrUE7v9ehm.jpg",
+    release_date: "2023-08-25",
+    vote_average: 7.2,
+  },
 ];
 
 // Check if API is accessible (to avoid repeated timeout attempts)
@@ -206,5 +213,70 @@ export const searchMovies = async (query) => {
     );
     console.log("🎭 Found", filtered.length, "matching mock movies");
     return filtered;
+  }
+};
+
+// Get movie videos (trailers, clips, etc.)
+export const getMovieVideos = async (movieId) => {
+  try {
+    console.log("🎬 Fetching videos for movie ID:", movieId);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+    const response = await fetch(
+      `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}`,
+      { signal: controller.signal }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log("✅ Videos retrieved:", data.results?.length, "videos");
+
+    // Filter for YouTube trailers and clips
+    const videos =
+      data.results?.filter(
+        (video) =>
+          video.site === "YouTube" &&
+          (video.type === "Trailer" ||
+            video.type === "Clip" ||
+            video.type === "Teaser")
+      ) || [];
+
+    return videos;
+  } catch (error) {
+    console.log("⚠️ Videos unavailable for movie:", movieId);
+    return [];
+  }
+};
+
+// Get featured movie videos for homepage
+export const getFeaturedMovieVideos = async () => {
+  try {
+    // Get videos for popular movies (first few from our mock data)
+    const featuredMovieIds = [5, 6, 3, 10]; // Interstellar, Oppenheimer, Dark Knight, Inception
+    const allVideos = [];
+
+    for (const movieId of featuredMovieIds) {
+      const videos = await getMovieVideos(movieId);
+      if (videos.length > 0) {
+        allVideos.push({
+          movieId,
+          movieTitle:
+            mockMovies.find((m) => m.id === movieId)?.title || "Unknown",
+          videos: videos.slice(0, 2), // Get max 2 videos per movie
+        });
+      }
+    }
+
+    return allVideos;
+  } catch (error) {
+    console.log("⚠️ Featured videos unavailable");
+    return [];
   }
 };
