@@ -1,13 +1,10 @@
 import MovieCard from "../components/MovieCard";
 import { useState, useEffect } from "react";
-import { searchMovies, getPopularMovies } from "../services/api";
+import { useMovieContext } from "../contexts/MovieContext";
 import "../css/Home.css";
 
 function Home() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [movies, setMovies] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { movies, loading, error, loadPopularMovies } = useMovieContext();
   const [heroIndex, setHeroIndex] = useState(0);
 
   const heroVideos = [
@@ -30,50 +27,10 @@ function Home() {
   const currentHero = heroVideos[heroIndex];
 
   useEffect(() => {
-    const loadPopularMovies = async () => {
-      try {
-        console.log("🏠 Home: Starting to load popular movies...");
-        setError(null); // Clear any previous errors
-
-        const popularMovies = await getPopularMovies();
-        console.log("🏠 Home: Received movies:", popularMovies?.length);
-
-        if (popularMovies && popularMovies.length > 0) {
-          setMovies(popularMovies);
-          console.log("✅ Movies set successfully");
-        } else {
-          console.warn("⚠️ No movies received");
-          setError("No movies found");
-        }
-      } catch (err) {
-        console.error("💥 Home: Error loading movies:", err);
-        setError("Failed to load movies: " + err.message);
-      } finally {
-        console.log("🏁 Home: Loading finished");
-        setLoading(false);
-      }
-    };
-
-    loadPopularMovies();
-  }, []);
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    if (loading) return;
-
-    setLoading(true);
-    try {
-      const searchResults = await searchMovies(searchQuery);
-      setMovies(searchResults);
-      setError(null);
-    } catch (err) {
-      console.log(err);
-      setError("Failed to search movies...");
-    } finally {
-      setLoading(false);
+    if (!movies || movies.length === 0) {
+      loadPopularMovies();
     }
-  };
+  }, [loadPopularMovies, movies]);
 
   return (
     <div className="home">
@@ -108,12 +65,10 @@ function Home() {
             }}
             onCanPlay={() => {
               console.log("✅ Video can play");
-              // Ensure video is visible and force play
               const video = document.querySelector(".hero-video");
               if (video) {
                 video.style.display = "block";
                 video.style.opacity = "1";
-                // Force play with promise handling
                 video
                   .play()
                   .then(() => {
@@ -126,7 +81,6 @@ function Home() {
             }}
             onLoadedData={() => {
               console.log("✅ Video data loaded");
-              // Try to play when data is loaded
               const video = document.querySelector(".hero-video");
               if (video) {
                 video.play().catch((err) => {
@@ -136,14 +90,12 @@ function Home() {
             }}
             onPlay={() => {
               console.log("✅ Video is playing");
-              // Hide fallback when video plays
               const fallback = document.querySelector(".hero-video-fallback");
               if (fallback) fallback.style.display = "none";
             }}
             onError={(e) => {
               console.error("❌ Video failed to load:", e);
               console.error("❌ Video error:", e.target.error);
-              // Show fallback on error
               const fallback = document.querySelector(".hero-video-fallback");
               if (fallback) fallback.style.display = "block";
             }}
@@ -162,55 +114,80 @@ function Home() {
             <button className="hero-btn hero-btn-play">▶ Watch Now</button>
             <button className="hero-btn hero-btn-info">ℹ More Info</button>
           </div>
-          <div className="hero-controls">
-            <button
-              type="button"
-              aria-label="Previous Hero"
-              className="hero-arrow hero-arrow-left"
-              onClick={() =>
-                setHeroIndex(
-                  (i) => (i - 1 + heroVideos.length) % heroVideos.length
-                )
-              }
+        </div>
+
+        <div className="hero-controls">
+          <button
+            type="button"
+            aria-label="Previous Hero"
+            className="hero-arrow hero-arrow-left"
+            onClick={() =>
+              setHeroIndex(
+                (i) => (i - 1 + heroVideos.length) % heroVideos.length
+              )
+            }
+          >
+            <svg
+              className="hero-arrow-icon"
+              width="32"
+              height="32"
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
             >
-              ‹
-            </button>
-            <div className="hero-dots">
-              {heroVideos.map((v, idx) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  className={`hero-dot ${idx === heroIndex ? "active" : ""}`}
-                  aria-label={`Go to ${v.title}`}
-                  onClick={() => setHeroIndex(idx)}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              aria-label="Next Hero"
-              className="hero-arrow hero-arrow-right"
-              onClick={() => setHeroIndex((i) => (i + 1) % heroVideos.length)}
-            >
-              ›
-            </button>
+              <g
+                fill="none"
+                stroke="white"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14 28 L24 16 L34 28" />
+                <path d="M12 32 L36 32" />
+              </g>
+            </svg>
+          </button>
+          <div className="hero-dots">
+            {heroVideos.map((v, idx) => (
+              <button
+                key={v.id}
+                type="button"
+                className={`hero-dot ${idx === heroIndex ? "active" : ""}`}
+                aria-label={`Go to ${v.title}`}
+                onClick={() => setHeroIndex(idx)}
+              />
+            ))}
           </div>
+          <button
+            type="button"
+            aria-label="Next Hero"
+            className="hero-arrow hero-arrow-right"
+            onClick={() => setHeroIndex((i) => (i + 1) % heroVideos.length)}
+          >
+            <svg
+              className="hero-arrow-icon"
+              width="32"
+              height="32"
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <g
+                fill="none"
+                stroke="white"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M14 20 L24 32 L34 20" />
+                <path d="M12 16 L36 16" />
+              </g>
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* Search below hero */}
-      <form onSubmit={handleSearch} className="search-form">
-        <input
-          type="text"
-          placeholder="Search for movies..."
-          className="search-input"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <button type="submit" className="search-button">
-          Search
-        </button>
-      </form>
+      {/* Search moved to Navbar */}
 
       {error && <div className="error-message">{error}</div>}
 
