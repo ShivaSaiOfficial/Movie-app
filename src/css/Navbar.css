@@ -7,6 +7,8 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-family: "Quicksand", sans-serif;
   font-weight: 500;
+  position: relative;
+  z-index: 10; /* Ensure navbar sits above hero */
 }
 
 .navbar-brand {
@@ -30,24 +32,25 @@
 
 .navbar-links {
   display: flex;
-  gap: 2.5rem;
-  margin-left: 40%;
+  gap: 6.2rem;
+  margin-right: 3%;
 }
 
 .nav-link {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   color: #e50914;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  transition: all 0.3s ease;
+  padding: 0.4rem 0; /* less padding to avoid button look */
+  border-radius: 0; /* no rounded corners so it looks like text */
+  transition: transform 0.2s ease, color 0.2s ease; /* avoid reflow */
   font-weight: 600;
+  display: inline-block; /* required for transform scaling */
+  transform-origin: center center; /* grow from center to avoid shifting right */
 }
 
 .nav-link:hover {
-  background-color: #e50914;
-  color: #ffffff;
-  transform: scale(1.02);
-  font-size: 1.1rem;
+  background: none; /* remove button-like hover */
+  color: #e50914; /* keep same color */
+  transform: scale(1.17); /* visually bigger without moving siblings */
 }
 
 @media (max-width: 768px) {
