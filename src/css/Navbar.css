@@ -1,12 +1,15 @@
 .navbar {
-  background-color: #000000;
+  background-color: transparent;
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   font-family: "Quicksand", sans-serif;
   font-weight: 500;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 10; /* Ensure navbar sits above hero */
 }
 
@@ -86,7 +89,12 @@
 .navbar-search-clear:hover,
 .navbar-search-clear:focus,
 .navbar-search-clear:active {
-  transform: translateY(-50%); /* disable hover animation/jumping */
+  transform: translateY(-50%); /* keep centered */
+  background: transparent; /* no background on hover */
+  border: none;
+  box-shadow: none;
+  outline: none;
+  color: #f5f5f1; /* keep text color consistent */
 }
 
 .navbar-search-submit {
