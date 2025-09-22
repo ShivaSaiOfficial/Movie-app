@@ -8,6 +8,26 @@ function Home() {
   const [movies, setMovies] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  const heroVideos = [
+    {
+      id: "interstellar",
+      src: "/videos/Interstellar_clip.mp4",
+      title: "Interstellar",
+      description:
+        "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival. Experience this mind-bending journey through space and time that will challenge everything you think you know about our universe.",
+    },
+    {
+      id: "f1",
+      src: "/videos/F1_Clip.mp4",
+      title: "Formula 1",
+      description:
+        "Feel the speed and drama of Formula 1 — blistering pace, razor-thin margins, and relentless strategy at the highest level of motorsport.",
+    },
+  ];
+
+  const currentHero = heroVideos[heroIndex];
 
   useEffect(() => {
     const loadPopularMovies = async () => {
@@ -76,6 +96,7 @@ function Home() {
           }}
         >
           <video
+            key={currentHero.id}
             className="hero-video"
             autoPlay
             muted
@@ -127,7 +148,7 @@ function Home() {
               if (fallback) fallback.style.display = "block";
             }}
           >
-            <source src="/videos/Interstellar_clip.mp4" type="video/mp4" />
+            <source src={currentHero.src} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <div className="hero-video-fallback"></div>
@@ -135,16 +156,44 @@ function Home() {
         </div>
 
         <div className="hero-content">
-          <h1 className="hero-title">Interstellar</h1>
-          <p className="hero-description">
-            A team of explorers travel through a wormhole in space in an attempt
-            to ensure humanity's survival. Experience this mind-bending journey
-            through space and time that will challenge everything you think you
-            know about our universe.
-          </p>
+          <h1 className="hero-title">{currentHero.title}</h1>
+          <p className="hero-description">{currentHero.description}</p>
           <div className="hero-buttons">
             <button className="hero-btn hero-btn-play">▶ Watch Now</button>
             <button className="hero-btn hero-btn-info">ℹ More Info</button>
+          </div>
+          <div className="hero-controls">
+            <button
+              type="button"
+              aria-label="Previous Hero"
+              className="hero-arrow hero-arrow-left"
+              onClick={() =>
+                setHeroIndex(
+                  (i) => (i - 1 + heroVideos.length) % heroVideos.length
+                )
+              }
+            >
+              ‹
+            </button>
+            <div className="hero-dots">
+              {heroVideos.map((v, idx) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  className={`hero-dot ${idx === heroIndex ? "active" : ""}`}
+                  aria-label={`Go to ${v.title}`}
+                  onClick={() => setHeroIndex(idx)}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              aria-label="Next Hero"
+              className="hero-arrow hero-arrow-right"
+              onClick={() => setHeroIndex((i) => (i + 1) % heroVideos.length)}
+            >
+              ›
+            </button>
           </div>
         </div>
       </div>

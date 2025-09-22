@@ -82,6 +82,78 @@
   height: 100%;
 }
 
+/* Hero Controls: arrows and dots */
+.hero-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2rem;
+  z-index: 4; /* above overlay and content */
+  height: 44px; /* align arrows baseline */
+}
+
+.hero-arrow {
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  position: absolute;
+  bottom: 0;
+}
+
+.hero-arrow:hover {
+  background: rgba(0, 0, 0, 0.55);
+  transform: scale(1.05);
+}
+
+.hero-arrow-left {
+  left: 1rem;
+}
+.hero-arrow-right {
+  right: 1rem;
+}
+
+.hero-dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px; /* cylindrical container */
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px; /* pill/cylinder shape */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.hero-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35); /* inactive gray like screenshot */
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease; /* no scale to avoid bounce */
+}
+
+.hero-dot.active {
+  background: #e6e6e6; /* light active dot like screenshot */
+}
+
+.hero-dot:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
 .hero-title {
   font-size: 8rem;
   font-weight: 800;
