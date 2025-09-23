@@ -67,7 +67,7 @@ export const MovieProvider = ({ children }) => {
         const list = await searchMovies(q);
         setMovies(list);
       } catch (err) {
-        setError("Failed to search movies");
+        setError(err?.message || "Failed to search movies");
       } finally {
         setLoading(false);
       }

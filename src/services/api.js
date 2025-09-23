@@ -1,5 +1,10 @@
 const API_KEY = "de79c44241a0e1db09617217f8b8692a";
 const BASE_URL = "https://api.themoviedb.org/3";
+const V4_TOKEN =
+  typeof import.meta !== "undefined"
+    ? import.meta.env?.VITE_TMDB_V4_TOKEN
+    : undefined;
+const REQUEST_TIMEOUT_MS = 10000; // 10s to avoid false timeouts
 
 // Mock data for when API is blocked
 const mockMovies = [
@@ -117,128 +122,223 @@ const mockMovies = [
   },
 ];
 
-// Check if API is accessible (to avoid repeated timeout attempts)
-let apiAccessible = null;
+// Centralized API status & backoff tracking
+const apiStatus = {
+  invalidKey: false, // set true on 401/403
+  lastFailureAt: 0, // timestamp of last network failure
+  cooldownMs: 60000, // 60s cooldown after generic failures
+  rateLimitUntil: 0, // timestamp until we should wait after 429
+};
+
+const now = () => Date.now();
+
+const shouldSkipNetwork = () => {
+  if (apiStatus.invalidKey) return { skip: true, reason: "invalid-key" };
+  if (now() < apiStatus.rateLimitUntil)
+    return { skip: true, reason: "rate-limit" };
+  if (
+    apiStatus.lastFailureAt &&
+    now() - apiStatus.lastFailureAt < apiStatus.cooldownMs
+  )
+    return { skip: true, reason: "cooldown" };
+  return { skip: false };
+};
+
+const buildHeaders = () => {
+  const headers = { Accept: "application/json" };
+  if (V4_TOKEN) headers["Authorization"] = `Bearer ${V4_TOKEN}`;
+  return headers;
+};
+
+const withTimeout = (signal) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const composite = new AbortController();
+  const onAbort = () => composite.abort();
+  if (signal) signal.addEventListener("abort", onAbort, { once: true });
+  return {
+    signal: controller.signal,
+    clear: () => clearTimeout(timeoutId),
+    composite,
+    detach: () => signal && signal.removeEventListener("abort", onAbort),
+  };
+};
 
 export const getPopularMovies = async () => {
-  // If we know API is not accessible, return mock data immediately
-  if (apiAccessible === false) {
-    console.log("🎭 Using cached mock data (API known to be inaccessible)");
+  const skip = shouldSkipNetwork();
+  if (skip.skip) {
+    console.log(`🎭 Using mock data due to: ${skip.reason}`);
     return mockMovies;
   }
-
   try {
     console.log("🎬 Attempting to fetch popular movies from TMDB...");
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
-
-    const response = await fetch(
-      `${BASE_URL}/movie/popular?api_key=${API_KEY}`,
-      {
-        signal: controller.signal,
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
-
-    clearTimeout(timeoutId);
+    const { signal, clear } = withTimeout();
+    const url = V4_TOKEN
+      ? `${BASE_URL}/movie/popular`
+      : `${BASE_URL}/movie/popular?api_key=${API_KEY}`;
+    const response = await fetch(url, { signal, headers: buildHeaders() });
+    clear();
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        apiStatus.invalidKey = true;
+        throw new Error("Invalid API key");
+      }
+      if (response.status === 429) {
+        const retryAfter = parseInt(
+          response.headers.get("Retry-After") || "60",
+          10
+        );
+        apiStatus.rateLimitUntil =
+          now() + Math.min(Math.max(retryAfter, 30), 120) * 1000; // clamp 30-120s
+        console.warn(`⏳ Rate limited. Backing off for ${retryAfter}s.`);
+        return mockMovies;
+      }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
+    apiStatus.invalidKey = false;
+    apiStatus.lastFailureAt = 0;
+    apiStatus.rateLimitUntil = 0;
     console.log(
       "✅ TMDB API Success! Retrieved",
       data.results?.length,
       "movies"
     );
-
-    apiAccessible = true; // Mark API as working
     return data.results || [];
   } catch (error) {
-    console.log("⚠️ TMDB API unavailable, using mock data");
-    apiAccessible = false; // Mark API as not working
+    if (error.name === "AbortError") {
+      console.warn(
+        "⏱️ TMDB request timed out. Using mock data and cooling down."
+      );
+      apiStatus.lastFailureAt = now();
+      return mockMovies;
+    }
+    if (error.message === "Invalid API key") {
+      console.error(
+        "🔒 Invalid API key. Blocking further attempts until key changes."
+      );
+      throw error; // propagate so UI can show specific error
+    }
+    console.warn("⚠️ TMDB API error. Using mock data.", error?.message);
+    apiStatus.lastFailureAt = now();
     return mockMovies;
   }
 };
 
 export const searchMovies = async (query) => {
-  // If we know API is not accessible, filter mock data immediately
-  if (apiAccessible === false) {
-    console.log("🔍 Filtering mock data for:", query);
-    const filtered = mockMovies.filter((movie) =>
-      movie.title.toLowerCase().includes(query.toLowerCase())
+  const skip = shouldSkipNetwork();
+  if (skip.skip) {
+    console.log(`🔍 Using mock search due to: ${skip.reason}`);
+    return mockMovies.filter((m) =>
+      m.title.toLowerCase().includes(query.toLowerCase())
     );
-    console.log("🎭 Found", filtered.length, "matching mock movies");
-    return filtered;
   }
-
   try {
     console.log("🔍 Searching TMDB for:", query);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-    const response = await fetch(
-      `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(
-        query
-      )}`,
-      { signal: controller.signal }
-    );
-
-    clearTimeout(timeoutId);
+    const { signal, clear } = withTimeout();
+    const url = V4_TOKEN
+      ? `${BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+      : `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(
+          query
+        )}`;
+    const response = await fetch(url, { signal, headers: buildHeaders() });
+    clear();
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        apiStatus.invalidKey = true;
+        throw new Error("Invalid API key");
+      }
+      if (response.status === 429) {
+        const retryAfter = parseInt(
+          response.headers.get("Retry-After") || "60",
+          10
+        );
+        apiStatus.rateLimitUntil =
+          now() + Math.min(Math.max(retryAfter, 30), 120) * 1000;
+        console.warn(`⏳ Rate limited. Backing off for ${retryAfter}s.`);
+        return mockMovies.filter((m) =>
+          m.title.toLowerCase().includes(query.toLowerCase())
+        );
+      }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
+    apiStatus.invalidKey = false;
+    apiStatus.lastFailureAt = 0;
+    apiStatus.rateLimitUntil = 0;
     console.log(
       "✅ TMDB Search Success! Found",
       data.results?.length,
       "movies"
     );
-
-    apiAccessible = true; // Mark API as working
     return data.results || [];
   } catch (error) {
-    console.log("⚠️ TMDB Search unavailable, filtering mock data");
-    apiAccessible = false; // Mark API as not working
-
-    const filtered = mockMovies.filter((movie) =>
-      movie.title.toLowerCase().includes(query.toLowerCase())
+    if (error.name === "AbortError") {
+      console.warn(
+        "⏱️ TMDB search timed out. Using mock filter and cooling down."
+      );
+      apiStatus.lastFailureAt = now();
+      return mockMovies.filter((m) =>
+        m.title.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    if (error.message === "Invalid API key") {
+      console.error("🔒 Invalid API key on search.");
+      throw error;
+    }
+    console.warn("⚠️ TMDB search error. Using mock filter.", error?.message);
+    apiStatus.lastFailureAt = now();
+    return mockMovies.filter((m) =>
+      m.title.toLowerCase().includes(query.toLowerCase())
     );
-    console.log("🎭 Found", filtered.length, "matching mock movies");
-    return filtered;
   }
 };
 
 // Get movie videos (trailers, clips, etc.)
 export const getMovieVideos = async (movieId) => {
+  const skip = shouldSkipNetwork();
+  if (skip.skip) {
+    console.log(`🎭 Skipping video fetch due to: ${skip.reason}`);
+    return [];
+  }
   try {
     console.log("🎬 Fetching videos for movie ID:", movieId);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-    const response = await fetch(
-      `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}`,
-      { signal: controller.signal }
-    );
-
-    clearTimeout(timeoutId);
+    const { signal, clear } = withTimeout();
+    const url = V4_TOKEN
+      ? `${BASE_URL}/movie/${movieId}/videos`
+      : `${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}`;
+    const response = await fetch(url, { signal, headers: buildHeaders() });
+    clear();
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        apiStatus.invalidKey = true;
+        throw new Error("Invalid API key");
+      }
+      if (response.status === 429) {
+        const retryAfter = parseInt(
+          response.headers.get("Retry-After") || "60",
+          10
+        );
+        apiStatus.rateLimitUntil =
+          now() + Math.min(Math.max(retryAfter, 30), 120) * 1000;
+        console.warn(
+          `⏳ Rate limited on videos. Backing off for ${retryAfter}s.`
+        );
+        return [];
+      }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
+    apiStatus.invalidKey = false;
+    apiStatus.lastFailureAt = 0;
+    apiStatus.rateLimitUntil = 0;
     console.log("✅ Videos retrieved:", data.results?.length, "videos");
-
-    // Filter for YouTube trailers and clips
     const videos =
       data.results?.filter(
         (video) =>
@@ -247,10 +347,19 @@ export const getMovieVideos = async (movieId) => {
             video.type === "Clip" ||
             video.type === "Teaser")
       ) || [];
-
     return videos;
   } catch (error) {
+    if (error.name === "AbortError") {
+      console.warn("⏱️ Video request timed out. Cooling down.");
+      apiStatus.lastFailureAt = now();
+      return [];
+    }
+    if (error.message === "Invalid API key") {
+      console.error("🔒 Invalid API key while fetching videos.");
+      throw error;
+    }
     console.log("⚠️ Videos unavailable for movie:", movieId);
+    apiStatus.lastFailureAt = now();
     return [];
   }
 };
