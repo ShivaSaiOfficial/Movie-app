@@ -94,41 +94,48 @@
 }
 
 .hero-arrow {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.45);
   color: #fff;
   border: none;
-  min-width: 48px; /* decreased width */
-  height: 78px; /* increased height */
-  padding: 0 8px;
-  border-radius: 10px; /* rectangular corners */
+  width: 50px;
+  height: 92px;
+  padding: 0 6px;
+  border-radius: 0px; /* rectangle with rounded corners */
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(2px);
-  transition: background-color 0.2s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.6);
+  transition: background 0.25s ease, box-shadow 0.25s ease; /* removed transform */
   position: absolute;
 }
 
 .hero-arrow:hover {
+  background: rgba(0, 0, 0, 0.65);
+  box-shadow: 0 6px 22px -4px rgba(0, 0, 0, 0.75);
+}
+
+.hero-arrow:active {
   background: rgba(0, 0, 0, 0.55);
+  box-shadow: 0 3px 14px -3px rgba(0, 0, 0, 0.65);
 }
 
 .hero-arrow-left {
-  left: 1rem;
+  left: 0rem;
   top: 50%;
   transform: translateY(-50%);
 }
 .hero-arrow-right {
-  right: 1rem;
+  right: 0rem;
   top: 50%;
   transform: translateY(-50%);
 }
 
 /* Rotate both arrow icons 90deg anti-clockwise */
-.hero-arrow-left .hero-arrow-icon,
-.hero-arrow-right .hero-arrow-icon {
-  transform: rotate(-90deg);
+/* Simple chevron icons keep natural orientation */
+.hero-arrow-icon {
+  display: block;
 }
 
 /* Removed previous top-right/right-bottom overrides; both arrows now center vertically. */

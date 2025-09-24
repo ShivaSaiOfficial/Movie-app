@@ -1,4 +1,5 @@
 import MovieCard from "../components/MovieCard";
+import GenreBrowser from "../components/GenreBrowser";
 import { useState, useEffect } from "react";
 import { useMovieContext } from "../contexts/MovieContext";
 import "../css/Home.css";
@@ -129,22 +130,15 @@ function Home() {
           >
             <svg
               className="hero-arrow-icon"
-              width="32"
-              height="32"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
               aria-hidden="true"
             >
-              <g
-                fill="none"
-                stroke="white"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M14 28 L24 16 L34 28" />
-                <path d="M12 32 L36 32" />
-              </g>
+              <path
+                d="M14.7 5.3a1 1 0 0 1 0 1.4L10.42 12l4.28 5.3a1 1 0 0 1-1.56 1.25l-5-6.2a1 1 0 0 1 0-1.25l5-6.2a1 1 0 0 1 1.56 0z"
+                fill="white"
+              />
             </svg>
           </button>
           <div className="hero-dots">
@@ -166,22 +160,15 @@ function Home() {
           >
             <svg
               className="hero-arrow-icon"
-              width="32"
-              height="32"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
               aria-hidden="true"
             >
-              <g
-                fill="none"
-                stroke="white"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M14 20 L24 32 L34 20" />
-                <path d="M12 16 L36 16" />
-              </g>
+              <path
+                d="M9.3 5.3a1 1 0 0 0 0 1.4L13.58 12l-4.28 5.3a1 1 0 0 0 1.56 1.25l5-6.2a1 1 0 0 0 0-1.25l-5-6.2a1 1 0 0 0-1.56 0z"
+                fill="white"
+              />
             </svg>
           </button>
         </div>
@@ -191,6 +178,7 @@ function Home() {
 
       {error && <div className="error-message">{error}</div>}
 
+      <GenreBrowser />
       {loading ? (
         <div className="loading">Loading...</div>
       ) : (

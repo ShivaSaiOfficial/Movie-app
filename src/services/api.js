@@ -122,6 +122,16 @@ const mockMovies = [
   },
 ];
 
+// Basic mock genres if API unavailable
+const mockGenres = [
+  { id: 28, name: "Action" },
+  { id: 12, name: "Adventure" },
+  { id: 18, name: "Drama" },
+  { id: 878, name: "Science Fiction" },
+  { id: 53, name: "Thriller" },
+  { id: 35, name: "Comedy" },
+];
+
 // Centralized API status & backoff tracking
 const apiStatus = {
   invalidKey: false, // set true on 401/403
@@ -387,5 +397,96 @@ export const getFeaturedMovieVideos = async () => {
   } catch (error) {
     console.log("⚠️ Featured videos unavailable");
     return [];
+  }
+};
+
+// Fetch list of genres
+export const fetchGenres = async () => {
+  const skip = shouldSkipNetwork();
+  if (skip.skip) {
+    console.log(`🎭 Using mock genres due to: ${skip.reason}`);
+    return mockGenres;
+  }
+  try {
+    console.log("🗂️ Fetching movie genres...");
+    const { signal, clear } = withTimeout();
+    const url = V4_TOKEN
+      ? `${BASE_URL}/genre/movie/list`
+      : `${BASE_URL}/genre/movie/list?api_key=${API_KEY}`;
+    const response = await fetch(url, { signal, headers: buildHeaders() });
+    clear();
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        apiStatus.invalidKey = true;
+        throw new Error("Invalid API key");
+      }
+      if (response.status === 429) {
+        const retryAfter = parseInt(
+          response.headers.get("Retry-After") || "60",
+          10
+        );
+        apiStatus.rateLimitUntil =
+          now() + Math.min(Math.max(retryAfter, 30), 120) * 1000;
+        console.warn(`⏳ Rate limited for genres. Backing off.`);
+        return mockGenres;
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.genres || [];
+  } catch (error) {
+    if (error.message === "Invalid API key") throw error;
+    console.warn("⚠️ Genre fetch failed, using mock.", error?.message);
+    return mockGenres;
+  }
+};
+
+// Fetch movies filtered by one or multiple genres
+export const fetchMoviesByGenre = async (genreInput) => {
+  if (!genreInput || (Array.isArray(genreInput) && genreInput.length === 0)) {
+    return getPopularMovies();
+  }
+  const ids = Array.isArray(genreInput) ? genreInput : [genreInput];
+  const param = ids.join(",");
+  const skip = shouldSkipNetwork();
+  if (skip.skip) {
+    console.log(`🎭 Using mock movie filter due to: ${skip.reason}`);
+    // naive mock filter using parity across sum of genre ids for deterministic subset
+    const sum = ids.reduce((a, b) => a + b, 0);
+    return mockMovies.filter((m) => (m.id + sum) % 2 === 0);
+  }
+  try {
+    console.log("🎬 Discover movies for genres:", param);
+    const { signal, clear } = withTimeout();
+    const url = V4_TOKEN
+      ? `${BASE_URL}/discover/movie?with_genres=${param}`
+      : `${BASE_URL}/discover/movie?with_genres=${param}&api_key=${API_KEY}`;
+    const response = await fetch(url, { signal, headers: buildHeaders() });
+    clear();
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        apiStatus.invalidKey = true;
+        throw new Error("Invalid API key");
+      }
+      if (response.status === 429) {
+        const retryAfter = parseInt(
+          response.headers.get("Retry-After") || "60",
+          10
+        );
+        apiStatus.rateLimitUntil =
+          now() + Math.min(Math.max(retryAfter, 30), 120) * 1000;
+        console.warn(`⏳ Rate limited on discover. Using mock filter.`);
+        const sum = ids.reduce((a, b) => a + b, 0);
+        return mockMovies.filter((m) => (m.id + sum) % 2 === 0);
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.results || [];
+  } catch (error) {
+    if (error.message === "Invalid API key") throw error;
+    console.warn("⚠️ Genre movie fetch failed, using mock.", error?.message);
+    const sum = ids.reduce((a, b) => a + b, 0);
+    return mockMovies.filter((m) => (m.id + sum) % 2 === 0);
   }
 };

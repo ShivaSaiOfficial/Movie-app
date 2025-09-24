@@ -113,7 +113,7 @@
   padding: 0.4rem 0; /* less padding to avoid button look */
   border-radius: 0; /* no rounded corners so it looks like text */
   transition: transform 0.2s ease, color 0.2s ease; /* avoid reflow */
-  font-weight: 600;
+  font-weight: 1900; /* increased from 600 */
   display: inline-block; /* required for transform scaling */
   transform-origin: center center; /* grow from center to avoid shifting right */
 }

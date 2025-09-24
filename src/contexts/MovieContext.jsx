@@ -77,6 +77,7 @@ export const MovieProvider = ({ children }) => {
 
   const value = {
     movies,
+    setMovies, // expose for genre-based filtering
     searchQuery,
     setSearchQuery,
     loading,
